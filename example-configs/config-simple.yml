@@ -10,7 +10,7 @@ log_type: 'STDOUT'
 log_level: 'DEBUG'
 
 # where the origin video is going to come from
-input_location: '/tmp/test.avi'
+input_location: '/tmp/spotlight.mp4'
 
 # segment length in seconds
 segment_length: 10 
@@ -19,7 +19,7 @@ segment_length: 10
 # if this location is the same as the location where the m3u8 
 # index is then leave it blank
 # url_prefix: ''
-url_prefix: 'http://192.168.1.1/streamingvideo/'
+url_prefix: 'http://localhost/'
 
 # how many segments to keep in the index
 index_segment_count: 15
@@ -31,7 +31,7 @@ source_command: 'cat %s'
 segmenter_binary: './live_segmenter'
 
 # the encoding profile to use
-encoding_profile: 'ep_128k'
+encoding_profile: 'hb_256k'
 
 # The upload profile to use
 transfer_profile: 'copy_dev'
@@ -39,6 +39,10 @@ transfer_profile: 'copy_dev'
 #
 # Encoding profiles
 #
+hb_256k:
+  ffmpeg_command: "ffmpeg -er 4 -vbsf h264_mp4toannexb -i %s -f mpegts -acodec copy -vcodec copy - | %s %s %s %s %s"
+  bandwidth: 256000
+
 ep_128k: 
   ffmpeg_command: "ffmpeg -er 4 -y -i %s -f mpegts -acodec libmp3lame -ar 48000 -ab 64k -s 320x240 -vcodec libx264 -b 128k -flags +loop -cmp +chroma -partitions +parti4x4+partp8x8+partb8x8 -subq 5 -trellis 1 -refs 1 -coder 0 -me_range 16 -keyint_min 25 -sc_threshold 40 -i_qfactor 0.71 -bt 128k -maxrate 128k -bufsize 128k -rc_eq 'blurCplx^(1-qComp)' -qcomp 0.6 -qmin 10 -qmax 51 -qdiff 4 -level 30 -aspect 320:240 -g 30 -async 2 - | %s %s %s %s %s"
   bandwidth: 128000
@@ -77,4 +81,4 @@ scp_dev:
 
 copy_dev:
   transfer_type: 'copy'
-  directory: '/var/www/html/streamingvideo'
+  directory: '/opt/app/static'
